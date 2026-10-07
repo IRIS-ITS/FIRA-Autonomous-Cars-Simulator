@@ -158,7 +158,7 @@ def main(argv):
     # we eventually get the ns (namespace) from the ROS parameter server for this node
     ns=''
     node = cmdvel2gazebo(ns)
-    rate = rospy.Rate(10) # run at 10Hz
+    rate = rospy.Rate(10, reset=True) # run at 10Hz; reset=True so a Gazebo reload (sim clock jumping backwards) doesn't kill this node
     while not rospy.is_shutdown():
         node.publish()
         rate.sleep()
