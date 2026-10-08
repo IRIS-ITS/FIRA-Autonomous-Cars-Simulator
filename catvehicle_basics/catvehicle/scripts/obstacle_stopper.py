@@ -17,7 +17,7 @@ class ObstacleStopper(object):
             closest_distance = None
         
         safe_twist = data
-        if closest_distance:
+        if closest_distance is not None:
             
             object_detected = closest_distance < self._minimum_distance
             if object_detected:
