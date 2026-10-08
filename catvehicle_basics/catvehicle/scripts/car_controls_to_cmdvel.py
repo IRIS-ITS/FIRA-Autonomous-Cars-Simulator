@@ -102,7 +102,7 @@ class CarControToCmdVel(object):
 
 def main():
     car_control_to_cmdvel_object = CarControToCmdVel()
-    rate = rospy.Rate(5) # run at 5Hz
+    rate = rospy.Rate(5, reset=True) # run at 5Hz; reset=True so a Gazebo reload (sim clock jumping backwards) doesn't kill this node
     while not rospy.is_shutdown():
         car_control_to_cmdvel_object.publish()
         rate.sleep()
