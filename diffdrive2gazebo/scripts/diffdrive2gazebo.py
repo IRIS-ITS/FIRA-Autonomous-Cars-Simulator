@@ -25,7 +25,7 @@ class diffdrive2gazebo:
     def __init__(self):
         rospy.init_node('diffdrive2gazebo', anonymous=True)
 
-        rospy.Subscriber('/wheel_vel_cmd', Int32MultiArray, self.callback)
+        rospy.Subscriber('/catvehicle/diffdrive_vel', Int32MultiArray, self.callback)
         self.pub_left = rospy.Publisher('/catvehicle/joint1_velocity_controller/command', Float64, queue_size=1)
         self.pub_right = rospy.Publisher('/catvehicle/joint2_velocity_controller/command', Float64, queue_size=1)
         self.pub_steerL = rospy.Publisher('/catvehicle/front_left_steering_position_controller/command', Float64, queue_size=1)
