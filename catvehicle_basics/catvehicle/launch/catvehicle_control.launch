@@ -37,8 +37,8 @@
       <!-- we run the python version, so we can be slower-than-real-time -->
 
     <node name="cmdvel2gazebo$(arg robot_name)" pkg="catvehicle" type="cmdvel2gazebo.py" respawn="false" output="screen"/>
-    <node name="diffdrive2gazebo$(arg robot_name)" pkg="diffdrive2gazebo" type="diffdrive2gazebo.py" respawn="false" output="screen"/>
-    <node name="ackermann2gazebo$(arg robot_name)" pkg="ackermann2gazebo" type="ackermann2gazebo.py" respawn="false" output="screen"/>
+    <node name="diffdrive2gazebo$(arg robot_name)" pkg="iris_fira_simulation" type="diffdrive2gazebo.py" respawn="false" output="screen"/>
+    <node name="ackermann2gazebo$(arg robot_name)" pkg="iris_fira_simulation" type="ackermann2gazebo.py" respawn="false" output="screen"/>
     <!-- Security Distance System and Odometry -->
     <!--<group ns="catvehicle">-->
     <node name="distanceEstimator" pkg="catvehicle" type="distanceEstimator" output="screen">
