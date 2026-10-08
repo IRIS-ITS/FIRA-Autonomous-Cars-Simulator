@@ -54,7 +54,7 @@ class ackermann2gazebo:
         # converted to radians with no clamping
         motor_pwm = max(-255, min(255, data.data[0]))
         self.vel = self.gain*(motor_pwm/255.0)*self.max_rpm*2.0*math.pi/60.0
-        self.steer = math.radians(data.data[1])
+        self.steer = math.radians(-data.data[1])
         self.lastMsg = rospy.Time.now()
         self.active = True
 
