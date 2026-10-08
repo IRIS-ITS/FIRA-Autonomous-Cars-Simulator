@@ -9,8 +9,7 @@
 # actual angular velocity.
 
 import rospy
-from std_msgs.msg import Float64
-from diffdrive2gazebo.msg import WheelVel
+from std_msgs.msg import Float64, Int32MultiArray
 import math
 
 class diffdrive2gazebo:
@@ -18,7 +17,7 @@ class diffdrive2gazebo:
     def __init__(self):
         rospy.init_node('diffdrive2gazebo', anonymous=True)
 
-        rospy.Subscriber('wheel_vel_cmd', WheelVel, self.callback)
+        rospy.Subscriber('wheel_vel_cmd', Int32MultiArray, self.callback)
         self.pub_left = rospy.Publisher('left_wheel_velocity_controller/command', Float64, queue_size=1)
         self.pub_right = rospy.Publisher('right_wheel_velocity_controller/command', Float64, queue_size=1)
 
@@ -37,9 +36,10 @@ class diffdrive2gazebo:
         self.lastMsg = rospy.Time.now()
 
     def callback(self, data):
-        # convert RPM to rad/s, then apply the mechanical reduction gain
-        self.vel_left = self.gain*data.vel_left*2.0*math.pi/60.0
-        self.vel_right = self.gain*data.vel_right*2.0*math.pi/60.0
+        # data.data is [vel_left, vel_right] in RPM; convert to rad/s, then
+        # apply the mechanical reduction gain
+        self.vel_left = self.gain*data.data[0]*2.0*math.pi/60.0
+        self.vel_right = self.gain*data.data[1]*2.0*math.pi/60.0
         self.lastMsg = rospy.Time.now()
 
     def publish(self):
