@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package>
+  <name>diffdrive2gazebo</name>
+  <version>1.0.0</version>
+  <description>
+    Bridge that converts differential-drive wheel velocity commands
+    (vel_left, vel_right, in RPM) into the ROS topics exposed in Gazebo
+    for driving a differential-drive vehicle's left/right joint velocity
+    controllers.
+  </description>
+  <maintainer email="navisazka26@gmail.com">Hendra Manudinata</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>message_generation</build_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>std_msgs</build_depend>
+
+  <run_depend>message_runtime</run_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>std_msgs</run_depend>
+</package>

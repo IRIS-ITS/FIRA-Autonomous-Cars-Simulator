@@ -1,0 +1,72 @@
+#!/usr/bin/env python
+#
+# This node converts differential-drive wheel velocity commands into the
+# ROS topics exposed in Gazebo for driving a differential-drive vehicle.
+# The input is a pair of integer wheel speeds (vel_left, vel_right) given
+# in RPM; these are converted to the rad/s expected by Gazebo's joint
+# velocity controllers, with an optional gain to account for a gearbox or
+# other mechanical reduction between the commanded RPM and the joint's
+# actual angular velocity.
+
+import rospy
+from std_msgs.msg import Float64
+from diffdrive2gazebo.msg import WheelVel
+import math
+
+class diffdrive2gazebo:
+
+    def __init__(self):
+        rospy.init_node('diffdrive2gazebo', anonymous=True)
+
+        rospy.Subscriber('wheel_vel_cmd', WheelVel, self.callback)
+        self.pub_left = rospy.Publisher('left_wheel_velocity_controller/command', Float64, queue_size=1)
+        self.pub_right = rospy.Publisher('right_wheel_velocity_controller/command', Float64, queue_size=1)
+
+        # initial target wheel velocities (rad/s) are 0
+        self.vel_left = 0.0
+        self.vel_right = 0.0
+
+        # gain to account for a gearbox/mechanical reduction between the
+        # commanded RPM and the joint's actual angular velocity; tune with
+        # the ~gain param if the simulated wheel speed doesn't match the
+        # commanded RPM
+        self.gain = rospy.get_param('~gain', 1.0)
+
+        # how many seconds delay for the dead man's switch
+        self.timeout = rospy.Duration.from_sec(rospy.get_param('~timeout', 0.2))
+        self.lastMsg = rospy.Time.now()
+
+    def callback(self, data):
+        # convert RPM to rad/s, then apply the mechanical reduction gain
+        self.vel_left = self.gain*data.vel_left*2.0*math.pi/60.0
+        self.vel_right = self.gain*data.vel_right*2.0*math.pi/60.0
+        self.lastMsg = rospy.Time.now()
+
+    def publish(self):
+        # if we haven't heard a new command recently, zero the target
+        # velocity so the vehicle stops if the commander dies or disconnects
+        if rospy.Time.now() - self.lastMsg > self.timeout:
+            self.vel_left = 0.0
+            self.vel_right = 0.0
+
+        msgLeft = Float64()
+        msgLeft.data = self.vel_left
+        self.pub_left.publish(msgLeft)
+
+        msgRight = Float64()
+        msgRight.data = self.vel_right
+        self.pub_right.publish(msgRight)
+
+
+def main():
+    node = diffdrive2gazebo()
+    rate = rospy.Rate(100, reset=True) # run at 100Hz; reset=True so a Gazebo reload (sim clock jumping backwards) doesn't kill this node
+    while not rospy.is_shutdown():
+        node.publish()
+        rate.sleep()
+
+if __name__ == '__main__':
+    try:
+        main()
+    except rospy.ROSInterruptException:
+        pass
