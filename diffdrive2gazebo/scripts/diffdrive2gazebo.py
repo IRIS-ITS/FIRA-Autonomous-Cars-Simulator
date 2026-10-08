@@ -52,7 +52,13 @@ class diffdrive2gazebo:
 
         # how many seconds delay for the dead man's switch
         self.timeout = rospy.Duration.from_sec(rospy.get_param('~timeout', 0.2))
-        self.lastMsg = rospy.Time.now()
+        self.lastMsg = None
+
+        # whether we're currently asserting commands onto the shared
+        # rear-wheel/steering topics; starts false (no message yet) so we
+        # don't fight cmdvel2gazebo/ackermann2gazebo before anyone has
+        # actually commanded this node
+        self.active = False
 
     def callback(self, data):
         # data.data is [vel_left, vel_right] in RPM; convert to rad/s, then
@@ -60,13 +66,22 @@ class diffdrive2gazebo:
         self.vel_left = self.gain*data.data[0]*2.0*math.pi/60.0
         self.vel_right = self.gain*data.data[1]*2.0*math.pi/60.0
         self.lastMsg = rospy.Time.now()
+        self.active = True
 
     def publish(self):
-        # if we haven't heard a new command recently, zero the target
-        # velocity so the vehicle stops if the commander dies or disconnects
+        if self.lastMsg is None:
+            # never received a command; stay silent so we don't fight
+            # whichever other node is actually driving the vehicle
+            return
+
         if rospy.Time.now() - self.lastMsg > self.timeout:
+            if not self.active:
+                # already idle; stay silent and yield the shared topics
+                return
+            # just went idle: publish one final stop, then go silent
             self.vel_left = 0.0
             self.vel_right = 0.0
+            self.active = False
 
         msgLeft = Float64()
         msgLeft.data = self.vel_left
