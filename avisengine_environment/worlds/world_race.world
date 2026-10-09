@@ -24,7 +24,7 @@
     </physics>
     <scene>
       <ambient>100.0 100.0 100.0 1.0</ambient>
-      <shadows>1</shadows>
+      <shadows>0</shadows>
       <sky>
         <clouds>
           <speed>12</speed>
